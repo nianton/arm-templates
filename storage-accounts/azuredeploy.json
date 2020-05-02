@@ -29,6 +29,20 @@
         "description": "Storage Account type"
       }
     },
+    "supportsHttpsOnly": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Whether the storage account will only accept https traffic."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags to be assigned to the created resources (JSON format)"
+      }
+    }
   },
   "functions": [
     {
@@ -86,9 +100,10 @@
         "name": "storagecopy",
         "count": "[parameters('storageAccountsCount')]"
       },
-      "tags": {
-        "displayName": "[tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())]"
+      "properties": {
+        "supportsHttpsTrafficOnly": "[parameters('supportsHttpsOnly')]"
       },
+      "tags": "[union(json(concat('{\"displayName\": \"', tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex()), '\"}')), parameters('tags'))]",
       "location": "[resourceGroup().location]",
       "kind": "StorageV2",
       "sku": {
@@ -104,7 +119,7 @@
         "input": {
           "id": "[reference(tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex()), '2019-04-01', 'Full').resourceId]",
           "blobEndpoint": "[reference(tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())).primaryEndpoints.blob]",
-          "connectionString": "[concat(tmpl.storageAccountConnection(tmpl.storageName(variables('storageAccountNamePrefix'), copyIndex())), listKeys(tmpl.storageAccountId(tmpl.storageName(variables('storageAccountNamePrefix'), copyIndex())), '2015-05-01-preview').key1)]"
+          "connectionString": "[concat(tmpl.storageAccountConnection(tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())), listKeys(tmpl.storageAccountId(tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())), '2015-05-01-preview').key1)]"
         }
       }
     }
