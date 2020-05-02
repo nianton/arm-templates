@@ -1,0 +1,112 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The prefix of the storage accounts"
+      }
+    },
+    "storageAccountsCount": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "The number of storage accounts to create"
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Standard_ZRS",
+        "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "Storage Account type"
+      }
+    },
+  },
+  "functions": [
+    {
+      "namespace": "tmpl",
+      "members": {
+        "storageAccountConnection": {
+          "parameters": [
+            {
+              "name": "storageAccountName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=')]"
+          }
+        },
+        "storageAccountId": {
+          "parameters": [
+            {
+              "name": "storageAccountName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
+          }
+        },
+        "storageName": {
+          "parameters": [
+            {
+              "name": "prefix",
+              "type": "string"
+            },
+            {
+              "name": "index",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}{1:000}', parameters('prefix'), parameters('index'))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "[tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "copy": {
+        "name": "storagecopy",
+        "count": "[parameters('storageAccountsCount')]"
+      },
+      "tags": {
+        "displayName": "[tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())]"
+      },
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "storageEndpoints": {
+      "type": "array",
+      "copy": {
+        "count": "[parameters('storageAccountsCount')]",
+        "input": {
+          "id": "[reference(tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex()), '2019-04-01', 'Full').resourceId]",
+          "blobEndpoint": "[reference(tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())).primaryEndpoints.blob]",
+          "connectionString": "[concat(tmpl.storageAccountConnection(tmpl.storageName(variables('storageAccountNamePrefix'), copyIndex())), listKeys(tmpl.storageAccountId(tmpl.storageName(variables('storageAccountNamePrefix'), copyIndex())), '2015-05-01-preview').key1)]"
+        }
+      }
+    }
+  }
+}
