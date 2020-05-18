@@ -36,6 +36,13 @@
         "description": "Whether the storage account will only accept https traffic."
       }
     },
+    "storageAccountProperties": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Additional storage account properties."
+      }
+    },
     "tags": {
       "type": "object",
       "defaultValue": {},
@@ -91,6 +98,12 @@
       }
     }
   ],
+  "variables": {
+    "defaultStorageAccountProperties": {
+      "supportsHttpsTrafficOnly": "[parameters('supportsHttpsOnly')]"
+    },
+    "storageAccountProperties": "[union(parameters('storageAccountProperties'), variables('defaultStorageAccountProperties'))]"
+  },
   "resources": [
     {
       "name": "[tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex())]",
@@ -100,9 +113,7 @@
         "name": "storagecopy",
         "count": "[parameters('storageAccountsCount')]"
       },
-      "properties": {
-        "supportsHttpsTrafficOnly": "[parameters('supportsHttpsOnly')]"
-      },
+      "properties": "[variables('storageAccountProperties')]",
       "tags": "[union(json(concat('{\"displayName\": \"', tmpl.storageName(parameters('storageAccountNamePrefix'), copyIndex()), '\"}')), parameters('tags'))]",
       "location": "[resourceGroup().location]",
       "kind": "StorageV2",
