@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {    
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "vnet-project-dev",
+      "metadata": {
+        "description": "The name of the Virtual Network"
+      }
+    },
+    "vnetAddressSpace": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address space of the Virtual Network"
+      }
+    },
+    "subnetNamePrefix": {
+      "type": "string",
+      "defaultValue": "snet",
+      "metadata": {
+        "description": "The prefix of the name for the subnets to be created"
+      }
+    },
+    "subnetCount": {
+      "type": "int",
+      "defaultValue": 2,
+      "minValue": 1, 
+      "maxValue": 200,
+      "metadata": {
+        "description": "The number of the subnets to be created"
+      }
+    },
+    "subnetAddressSpaceFormat": {
+      "type": "string",
+      "defaultValue": "10.0.x.0/24",
+      "metadata": {
+        "description": "The subnets' address space with 'x' as placeholder"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "vnetName": "[parameters('vnetName')]"
+  },
+  "resources": [{
+    "name": "[variables('vnetName')]",
+    "type": "Microsoft.Network/virtualNetworks",
+    "apiVersion": "2019-11-01",
+    "location": "[resourceGroup().location]",
+    "tags": {
+      "displayName": "[variables('vnetName')]"
+    },
+    "properties": {
+      "addressSpace": {
+        "addressPrefixes": [
+          "[parameters('vnetAddressSpace')]"
+        ]
+      }
+    }
+  }, 
+  {
+    "type": "Microsoft.Network/virtualNetworks/subnets",
+    "apiVersion": "2019-11-01",
+    "name": "[concat(variables('vnetName'), '/', parameters('subnetNamePrefix'), format('-{0:00}', copyIndex()))]",
+    "dependsOn": [
+      "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+    ],
+    "copy": {
+      "name": "subnetcopy",
+      "count": "[parameters('subnetCount')]",
+      "mode": "serial",
+      "batchSize": 1
+    },
+    "properties": {
+      "addressPrefix": "[replace(parameters('subnetAddressSpaceFormat'), 'x', string(copyIndex()))]"
+    }
+  }],
+  "outputs": {}
+}
