@@ -4,9 +4,14 @@
 
 
 This template deploys a **Virtual Network** with multiple subnets in a configurable fashion. You may configure the following in the process:
-* Number of subnets created
+* Number of subnets
 * Prefix of the subnet names (e.g. with 'snet' as prefix, the resulting subnets will be named: 'snet-00', 'snet-01' and so on)
 * Subnet address space template (e.g. with '10.0.x.0/24' the resulting subnets will have adress spaces like '10.0.0.0/24', '10.0.1.0/24' and so on)
+
+The resulting virtual network for 5 subnets with the default parameters is like the following:
+
+![alt text](https://raw.githubusercontent.com/nianton/arm-templates/master/.assets/multiple-subnets-diagram.png "Virtual Network topology result")
+
 
 If you are new to template deployment, see:
 
