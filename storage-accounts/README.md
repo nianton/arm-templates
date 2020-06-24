@@ -11,9 +11,13 @@ This template deploys a series of **Storage Accounts** in a sequential fashion. 
 * Additional storage accounts properties for configure the storage accounts -JSON object, [reference](https://docs.microsoft.com/en-us/azure/templates/microsoft.storage/2019-06-01/storageaccounts#storageaccountpropertiescreateparameters-object)
 * The set of tags to be created -JSON object, e.g. { "environment": "dev", "project": "megastore" }
 
-The resulting storage accounts 3 with prefix of "smyappdatadev" and default parameters will be:
+For example, passing the parameters:
+* "storageAccountNamePrefix": "smyappdatadev"
+* "storageAccountsCount": 3
+* "tags": { "project": "demo-for-github"
+the resulting storage accounts will look like the below:
 
-![alt text](https://raw.githubusercontent.com/nianton/arm-templates/master/.assets/multiple-subnets-diagram.png "Virtual Network topology result")
+![alt text](https://raw.githubusercontent.com/nianton/arm-templates/master/.assets/storage-accounts-example.png "Storage Accounts result example")
 
 and the output of the template will be the following:
 
