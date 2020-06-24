@@ -14,7 +14,8 @@ This template deploys a series of **Storage Accounts** in a sequential fashion. 
 For example, passing the parameters:
 * "storageAccountNamePrefix": "smyappdatadev"
 * "storageAccountsCount": 3
-* "tags": { "project": "demo-for-github"
+* "tags": { "project": "demo-for-github" }
+
 the resulting storage accounts will look like the below:
 
 ![alt text](https://raw.githubusercontent.com/nianton/arm-templates/master/.assets/storage-accounts-example.png "Storage Accounts result example")
